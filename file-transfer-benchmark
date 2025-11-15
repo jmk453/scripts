@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# What does this script need to do?
+# It creates a random 10G file.
+# It copies the file to a chosen path.
+# It benchmarks how long it took to copy the file.
+# It deletes the copy and the original file.
+
+cleanup() {
+    rm -f /tmp/10g-random-data
+}
+
+trap cleanup EXIT
+dd if=/dev/urandom of=/tmp/10g-random-data bs=1M count=10000
+
+dst="$1/10g-random-data"
+hyperfine --cleanup "rm $dst" \
+    cp /tmp/10g-random-data "$dst"

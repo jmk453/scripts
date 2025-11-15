@@ -1,0 +1,4 @@
+#!/usr/bin/env fish
+for f in /var/www/**/*.{css,js,html,svg}
+    brotli -Z "$f"
+end

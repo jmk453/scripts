@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+if [ $USER != postgres ]; then
+    echo Warning: rerunning as sudo -u postgres pg_dump_service
+    sudo -u postgres pg_dump_service
+    exit
+fi
+TS=$(date +"%Y-%m-%dT%H-%M-%S%z")
+pg_dump --dbname=vaultwarden --compress=zstd:19 --file="/mnt/storage/archives/systems/postgres/vaultwarden_$TS.sql.zst"
+pg_dump --dbname=gitea --compress=zstd:19 --file="/mnt/storage/archives/systems/postgres/gitea_$TS.sql.zst"
+pg_dump --dbname=r18dev --compress=zstd:19 --file="/mnt/storage/archives/systems/postgres/r18dev_$TS.sql.zst"
+

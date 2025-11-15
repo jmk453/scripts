@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+if [[ "$(whoami)" != "bytenest-automation" ]]; then
+    sudo --user=bytenest-automation -- "$0" "$@"
+    exit
+fi
+ssh -t monroe "sudo update"
+ssh -t manus "sudo update"

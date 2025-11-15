@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+lichen "$1" \
+    | rg -o ': (.+) \(' -r '$1' \
+    | rg -o '([A-Za-z0-9\\.\\-]+)' -r '$1' \
+    | sort -u
+

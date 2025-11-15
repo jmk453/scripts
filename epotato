@@ -1,0 +1,100 @@
+#!/usr/bin/env fish
+
+function update -a ebuildfile
+    update-node-modules "$ebuildfile"
+    ebuild "$ebuildfile" --skip-manifest clean unpack
+    update-nugets "$ebuildfile"
+    ebuild "$ebuildfile" clean manifest
+end
+
+function update-nugets -a ebuildfile
+    # Clear existing nugets.
+    perl -0777pi -e 's/NUGETS=".*?"/NUGETS=""/s' "$ebuildfile"
+
+    set TMPDIR (mktemp --directory)
+    set -l projectfile (get-projectfile "$ebuildfile")
+    set -l nugets (get-nugets "$projectfile" | string join '\n\t')
+    rm -r "$TMPDIR"
+
+    # Add new nugets.
+    sed -i "s/NUGETS=\"\"/NUGETS=\"\n\t$nugets\n\"/" "$ebuildfile"
+end
+
+function get-nugets -a projectfile
+    set -l nugets (gdmt restore --project "$projectfile" --cache "$TMPDIR" | rg '^[\w\d\.\-]+@[\d\.\-\w]+$')
+    set -l projectfiles (dotnet list "$projectfile" reference | awk 'NR>2')
+    for subprojectfile in $projectfiles
+        set -l normalized (string replace -a '\\' '/' "$subprojectfile")
+        set -a nugets (get-nugets "$(dirname $projectfile)/$normalized")
+    end
+    printf %s\n $nugets | sort --unique
+end
+
+function get-projectfile -a ebuildfile
+    rg \
+        --no-line-number \
+        --only-matching \
+        --replace \
+        '$1' \
+        'DOTNET_PKG_PROJECTS=\( ([\w\.]+) \)' \
+        "$ebuildfile" | read -l projectname
+    set -l category (get-category "$ebuildfile")
+    set -l name (basename "$ebuildfile" .ebuild)
+    set -l workpath "/var/tmp/portage/$category/$name/work"
+    find "$workpath" -name "$projectname.csproj"
+end
+
+function get-category -a ebuildfile
+    echo (basename (dirname (dirname "$ebuildfile")))
+end
+
+function get-workpath -a ebuildfile
+    set -l category (get-category "$ebuildfile")
+    set -l name (basename "$ebuildfile" .ebuild)
+    echo "/var/tmp/portage/$category/$name/work"
+end
+
+function update-node-modules -a ebuildfile
+    set -l initial_pwd (pwd)
+    set -l name (basename "$ebuildfile" .ebuild)
+    set -l tarball "/var/cache/distfiles/$name-node_modules.tar.xz"
+    tar -cJf "$tarball" -T /dev/null
+    ebuild "$ebuildfile" --skip-manifest clean unpack
+    rm -rf "$tarball"
+
+    set -l workpath (get-workpath "$ebuildfile")
+    set -l codepath (dirname (find "$workpath" -name yarn.lock))
+    cd "$codepath"
+    yarn install --frozen-lockfile
+    cd ..
+    XZ_OPT=-9e tar -caf "$tarball" "$P/node_modules"
+    sudo --user=justin rsync --chown http:http "$tarball" monroe:/var/www/justinkidd.ca/files/gentoo
+    ebuild "$ebuildfile" --force manifest
+    cd "$initial_pwd"
+end
+
+function verify -a ebuildfile
+    ebuild "$ebuildfile" clean install
+end
+
+argparse --name=epotato h/help -- $argv
+or return
+
+if set -q _flag_help
+    echo "epotato 0.0.1"
+    echo "Justin Kidd <me@justinkidd.ca>"
+    echo ""
+    echo "epotato assists in maintaining Gentoo packages."
+    echo ""
+    echo "USAGE:"
+    echo "    epotato command"
+    echo ""
+    echo "COMMANDS:"
+    echo "    livecheck: Checks if a newer version is available upstream."
+    echo "    update: Replaces the current package with the newest version available upstream."
+    echo "    verify: Ensures that the package is fine."
+    return 0
+end
+
+set P (string replace -r '^([a-z])' '\u\1' (basename "$argv[2]" .ebuild))
+$argv

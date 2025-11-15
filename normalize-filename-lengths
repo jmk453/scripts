@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+root = sys.argv[1]
+for dirpath, dirnames, filenames in os.walk(root):
+    for filename in filenames:
+        encoded_filename = filename.encode("utf-8")
+        if len(encoded_filename) > 255:
+            basename, extension = os.path.splitext(encoded_filename)
+            basename = basename[:255-len(extension)].decode("utf-8", "ignore")
+            extension = extension.decode("utf-8", "ignore")
+            
+            oldpath = os.path.join(dirpath, filename)
+            newpath = os.path.join(dirpath, basename + extension)
+            os.rename(oldpath, newpath)

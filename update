@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source /etc/os-release
+case "$ID" in
+    gentoo)
+        emaint sync --auto
+        emerge --update --deep --newuse --with-bdeps=y @world
+        emerge --depclean
+        ;;
+
+    debian)
+        apt-get update
+        apt-get upgrade
+        apt-get autoclean
+        apt-get autoremove
+        ;;
+
+    *)
+        echo "Unsupported distro: $ID"
+        ;;
+esac

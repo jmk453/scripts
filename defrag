@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+mapfile -t FILES < /etc/defrag/paths
+for FILE in "${FILES[@]}"; do
+    btrfs filesystem defragment -r "$FILE"
+done

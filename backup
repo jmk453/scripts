@@ -1,0 +1,14 @@
+#!/usr/bin/env fish
+set TODAY $(date "+%F")
+set SUBVOLUME /home/justin
+set SNAPSHOT_BASE "/home/.snapshots/home-justin"
+set SNAPSHOT "$SNAPSHOT_BASE/$TODAY"
+set PARENT $(cat "$SNAPSHOT_BASE/parent")
+set SNAPSHOT_RECV "/mnt/storage/snapshots/home-justin"
+
+btrfs subvolume snapshot -r "$SUBVOLUME" "$SNAPSHOT"
+btrfs send --compressed-data -p "$PARENT" "$SNAPSHOT" \
+	| sudo --user=justin ssh monroe.potatolab.ca "sudo btrfs receive \"$SNAPSHOT_RECV\""
+
+echo "$SNAPSHOT" > "$SNAPSHOT_BASE/parent"
+

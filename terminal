@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+foot --server
+footclient --no-wait --title="mosh remote1.bytenes ~" mosh remote1.bytenest.ca
+footclient --no-wait --title="mosh remote2.bytenes ~" mosh remote2.bytenest.ca
+footclient --no-wait --title="mosh monroe ~" mosh monroe.bytenest.ca
+footclient --no-wait
+

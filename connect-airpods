@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+bluetoothctl disconnect 50:F3:51:A0:A7:E9
+sleep 5
+bluetoothctl connect 50:F3:51:A0:A7:E9

@@ -1,0 +1,34 @@
+#!/usr/bin/env fish
+
+argparse --name=potatomanager h/help -- $argv
+or return
+
+if set -q _flag_help
+    echo "potatomanager 0.0.1"
+    echo "Justin Kidd <me@justinkidd.ca>"
+    echo ""
+    echo "potatomanager assists in managing a gentoo system."
+    echo ""
+    echo "USAGE:"
+    echo "    potatomanager command"
+    echo ""
+    echo "COMMANDS:"
+    echo "    poweroff: Safe wrapper for systemctl poweroff."
+    echo ""
+    echo "    reboot: Safe wrapper for systemctl reboot."
+    return 0
+end
+
+switch $argv[1]
+    case poweroff
+        systemctl stop qbittorrent@justin
+        systemctl stop stash
+        systemctl poweroff
+    case reboot
+        systemctl stop qbittorrent@justin
+        systemctl stop stash
+        systemctl reboot
+    case '*'
+        echoerr You did not pass a correct command.
+        source (status filename) --help
+end

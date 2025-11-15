@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+from pathlib import Path
+from glob import iglob
+import argparse
+import tarfile
+import re
+import sys
+
+parser = argparse.ArgumentParser("find-github-exports")
+parser.add_argument("directory", help="The base directory to search from.", type=str)
+args = parser.parse_args()
+
+filename_pattern = re.compile(r"\w+-\w+-\w+-\w+-\w+\.tar\.gz")
+search_pattern = str(Path(args.directory)) + "/**/*.tar.gz"
+for filepath in iglob(search_pattern, recursive=True):
+    filename = Path(filepath).name
+    if filename_pattern.fullmatch(filename):
+        with tarfile.open(filepath, "r:gz") as tar:
+            if "./repositories_000001.json" in tar.getnames():
+                print(filepath)
+

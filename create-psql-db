@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+DB_USER="$1"
+DB_NAME="$1"
+DB_PASS=$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 32)
+
+if [ -z "$DB_USER" ]; then 
+    echo "The username / dbname must be passed as the first argument"
+    exit 1
+fi
+
+echo "The password is $DB_PASS"
+
+sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';"
+sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+

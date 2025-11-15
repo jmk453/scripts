@@ -1,0 +1,20 @@
+#!/usr/bin/env fish
+set --local mod "$argv[1]"
+set --local source "$argv[2]"
+chmod -R "$mod" "$source"
+
+set --local uperm (math --scale=0 "$mod" / 100)
+set --local gperm (math --scale=0 "$mod" % 100 / 10)
+set --local operm (math --scale=0 "$mod" % 10)
+for d in (find "$source" -type d)
+    if test "$uperm" -ge 4
+        chmod u+x "$d"
+    end
+    if test "$gperm" -ge 4
+        chmod g+x "$d"
+    end
+    if test "$operm" -ge 4
+        chmod o+x "$d"
+    end
+end
+

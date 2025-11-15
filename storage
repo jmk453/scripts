@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+manus() {
+    echo "Operating on manus"
+    btrfs scrub start /
+}
+
+monroe() {
+    echo "Operating on monroe"
+    btrfs scrub start /
+    btrfs scrub start /mnt/nvme
+}
+
+$(hostname)

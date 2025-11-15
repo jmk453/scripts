@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+tmpdir="$(mktemp -d)"
+echo "Temporary directory created at $tmpdir"
+trap 'rm -rf -- "$tmpdir"' EXIT
+cd "$tmpdir"
+fish
+echo "Temporary directory removed at $tmpdir"

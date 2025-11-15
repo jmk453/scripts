@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+GOAMD64=v3 ~justin/go/bin/xcaddy build --output /mnt/nvme/shared/caddy --with github.com/caddy-dns/rfc2136 --with github.com/mholt/caddy-webdav

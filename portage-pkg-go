@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require "shellwords"
+require "optparse"
+
+def deps
+    pwd = Shellwords.shellescape(Dir.pwd)
+    `GOMODCACHE=#{pwd}/go-mod go mod download`
+    `tar -I 'zstd --ultra -22' -cf act_runner-0.2.12-deps.tar.zst go-mod`
+end
+
+def licenses
+    lichen
+end
+
+options = {}
+
+Option

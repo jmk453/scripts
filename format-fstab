@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+import subprocess
+import os
+
+def create_table(text: str, g):
+    p = subprocess.run(["column", "-t"], input=text, text=True, capture_output=True, check=True)
+    g.write(p.stdout)
+
+with open("/etc/fstab", "r") as f, open("/tmp/fstab", "w") as g:
+    buffer: list[str] = []
+    for line in f:
+        if line.startswith("#"):
+            g.write(line)
+        elif line == "\n":
+            text = "".join(buffer)
+            buffer.clear()
+            create_table(text, g)
+            g.write(line)
+        else:
+            buffer.append(line)
+    if buffer:
+        text = "".join(buffer)
+        create_table(text, g)
+
+subprocess.run(["cp", "--no-preserve=mode,ownership", "/tmp/fstab", "/etc/fstab"], check=True)
+os.remove("/tmp/fstab")
+subprocess.run(["systemctl", "daemon-reload"], check=True)

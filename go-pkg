@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+GOMODCACHE="$PWD/go-mod" go mod download
+tar -I "zstd --ultra -22" -cf "$(basename -- "$PWD")-deps.tar.zst" go-mod
