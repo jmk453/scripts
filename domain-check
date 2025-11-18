@@ -20,7 +20,9 @@ domains = [
     "justinharrison.ca",
     "potatolab.ca",
     "potatodns.ca",
-    "potatodiet.ca"
+    "potatodiet.ca",
+    "jmk453.dev",
+    "yeonsuchoi.ca"
 ]
 expirations = []
 for domain in domains:
